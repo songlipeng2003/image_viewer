@@ -4,4 +4,19 @@
     <string name="app_name">图片查看器</string>
     <string name="action_settings">Settings</string>
 
+    <string-array name="dir_list">
+        <item>aa</item>
+        <item>aa</item>
+        <item>aa</item>
+        <item>aa</item>
+        <item>aa</item>
+    </string-array>
+    <string-array name="dir_names">
+        <item>AA</item>
+        <item>AA</item>
+        <item>AA</item>
+        <item>AA</item>
+        <item>AA</item>
+    </string-array>
+
 </resources>
