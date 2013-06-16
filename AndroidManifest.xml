@@ -24,6 +24,8 @@
         </activity>
         <activity android:name="com.newmeishu.image_viewer.ImageListActivity" >
         </activity>
+        <activity android:name="com.newmeishu.image_viewer.ImageViewerActivity" >
+        </activity>
     </application>
 
 </manifest>

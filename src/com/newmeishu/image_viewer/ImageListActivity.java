@@ -1,6 +1,7 @@
 package com.newmeishu.image_viewer;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,9 +32,15 @@ public class ImageListActivity extends Activity {
 		imageGridView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				// TODO Auto-generated method stub
+			public void onItemClick(AdapterView<?> arg0, View arg1,
+					int position, long id) {
+				Intent intent = new Intent(getApplicationContext(),
+						ImageViewerActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putString("dir", dir);
+				bundle.putString("dirName", dirName);
+				intent.putExtras(bundle);
+				startActivity(intent);
 			}
 		});
 	}
