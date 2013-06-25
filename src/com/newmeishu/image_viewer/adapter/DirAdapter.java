@@ -1,10 +1,9 @@
 package com.newmeishu.image_viewer.adapter;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap.CompressFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +12,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.newmeishu.image_viewer.R;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.decode.BaseImageDecoder;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 
 public class DirAdapter extends BaseAdapter {
 	private LayoutInflater listContainer;// 视图容器
-	private Context context;
-	private String[] dirList;
-	private String[] dirNames;
+	private File[] files;
 
 	static class ListItemView { // 自定义控件集合
 		public ImageView image;
@@ -31,21 +38,49 @@ public class DirAdapter extends BaseAdapter {
 	 * @param context
 	 * @param data
 	 */
-	public DirAdapter(Context context, String[] dirList, String[] dirNames) {
-		this.context = context;
-		this.dirList = dirList;
-		this.dirNames = dirNames;
+	public DirAdapter(Context context, File dir) {
 		this.listContainer = LayoutInflater.from(context); // 创建视图容器并设置上下文
+		if (dir == null || !dir.isDirectory()) {
+			files = new File[0];
+		} else {
+			files = dir.listFiles();
+		}
+
+		File cacheDir = StorageUtils.getCacheDirectory(context);
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+				context)
+				.memoryCacheExtraOptions(480, 800)
+				// default = device screen dimensions
+				.discCacheExtraOptions(480, 800, CompressFormat.JPEG, 75)
+				.threadPoolSize(3)
+				// default
+				.threadPriority(Thread.NORM_PRIORITY - 1)
+				// default
+				.tasksProcessingOrder(QueueProcessingType.FIFO)
+				// default
+				.denyCacheImageMultipleSizesInMemory()
+				.memoryCache(new LruMemoryCache(2 * 1024 * 1024))
+				.memoryCacheSize(2 * 1024 * 1024)
+				.discCache(new UnlimitedDiscCache(cacheDir))
+				// default
+				.discCacheSize(50 * 1024 * 1024).discCacheFileCount(100)
+				.discCacheFileNameGenerator(new HashCodeFileNameGenerator()) // default
+				.imageDownloader(new BaseImageDownloader(context)) // default
+				.imageDecoder(new BaseImageDecoder()) // default
+				.defaultDisplayImageOptions(DisplayImageOptions.createSimple()) // default
+				.enableLogging().build();
+
+		ImageLoader.getInstance().init(config);
 	}
 
 	@Override
 	public int getCount() {
-		return dirList.length;
+		return files.length;
 	}
 
 	@Override
-	public String getItem(int position) {
-		return dirList[position];
+	public File getItem(int position) {
+		return files[position];
 	}
 
 	@Override
@@ -57,6 +92,7 @@ public class DirAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// 自定义视图
 		ListItemView listItemView = null;
+		File file = getItem(position);
 
 		if (convertView == null) {
 			// 获取list_item布局文件的视图
@@ -76,25 +112,13 @@ public class DirAdapter extends BaseAdapter {
 		}
 
 		// 设置文字和图片
-		String dir = dirList[position];
-		String dirName = dirNames[position];
-		listItemView.title.setText(dirName);
+		listItemView.title.setText(file.getName());
 
-		try {
-
-			String[] files = context.getAssets().list("images/" + dir);
-
-			if (files != null && files.length >= 0) {
-				// get input stream
-				InputStream inputStream = context.getAssets().open(
-						"images/" + dir + "/" + files[0]);
-				// load image as Drawable
-				Drawable d = Drawable.createFromStream(inputStream, null);
-				// set image to ImageView
-				listItemView.image.setImageDrawable(d);
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
+		if (file.isDirectory()) {
+			listItemView.image.setImageResource(R.drawable.floder);
+		} else {
+			String uri = "file://" + file.getAbsolutePath();
+			ImageLoader.getInstance().displayImage(uri, listItemView.image);
 		}
 
 		return convertView;

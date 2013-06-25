@@ -1,8 +1,12 @@
 package com.newmeishu.image_viewer;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -11,33 +15,48 @@ import android.widget.GridView;
 import com.newmeishu.image_viewer.adapter.DirAdapter;
 
 public class MainActivity extends Activity {
+	private static final String IMAGE_DIR = "/DCIM/";
+
+	private static final String TAG = "activity";
 
 	private GridView dirGridView;
 
-	private String[] dir_list;
-	private String[] dir_names;
+	private DirAdapter dirAdapter;
+
+	private String path;
+
+	private File dir;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		dir_list = getResources().getStringArray(R.array.dir_list);
-		dir_names = getResources().getStringArray(R.array.dir_names);
+		Intent intent = getIntent();
+		path = intent.getStringExtra("path");
+		if (path == null) {
+			path = Environment.getExternalStorageDirectory() + IMAGE_DIR;
+		}
+		Log.d(TAG, path);
+		dir = new File(path);
+		dirAdapter = new DirAdapter(getApplicationContext(), dir);
 		dirGridView = (GridView) findViewById(R.id.dirGridView);
-		DirAdapter dirAdapter = new DirAdapter(getApplicationContext(),
-				dir_list, dir_names);
 		dirGridView.setAdapter(dirAdapter);
 		dirGridView.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long id) {
-				Intent intent = new Intent(getApplicationContext(),
-						ImageListActivity.class);
+				Intent intent = null;
+				File file = dirAdapter.getItem(position);
+				if (file.isDirectory()) {
+					intent = new Intent(getApplicationContext(),
+							MainActivity.class);
+				} else {
+					intent = new Intent(getApplicationContext(),
+							ImageViewerActivity.class);
+				}
+
 				Bundle bundle = new Bundle();
-				bundle.putString("dir", dir_list[position]);
-				bundle.putString("dirName", dir_names[position]);
+				bundle.putString("path", file.getAbsolutePath());
 				intent.putExtras(bundle);
 				startActivity(intent);
 			}
