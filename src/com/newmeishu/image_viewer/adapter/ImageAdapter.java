@@ -1,12 +1,8 @@
 package com.newmeishu.image_viewer.adapter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +10,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.newmeishu.image_viewer.R;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class ImageAdapter extends BaseAdapter {
-	private List<String> listItems;// 数据集合
 	private LayoutInflater listContainer;// 视图容器
-	private String dir;
-	private Context context;
+	private File[] files;
 
 	static class ListItemView { // 自定义控件集合
 		public ImageView image;
@@ -31,32 +26,23 @@ public class ImageAdapter extends BaseAdapter {
 	 * @param context
 	 * @param data
 	 */
-	public ImageAdapter(Context context, String dir) {
-		this.context = context;
-		this.dir = dir;
+	public ImageAdapter(Context context, File dir) {
 		this.listContainer = LayoutInflater.from(context); // 创建视图容器并设置上下文
-		this.listItems = new ArrayList<String>();
-		String str[] = {};
-		try {
-			str = context.getAssets().list("images/" + dir);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		for (String s : str) {
-			listItems.add(s);
+		if (dir == null || !dir.isDirectory()) {
+			files = new File[0];
+		} else {
+			files = dir.listFiles();
 		}
 	}
 
 	@Override
 	public int getCount() {
-		return listItems.size();
+		return files.length;
 	}
 
 	@Override
-	public String getItem(int position) {
-		return listItems.get(position);
+	public File getItem(int position) {
+		return files[position];
 	}
 
 	@Override
@@ -84,30 +70,10 @@ public class ImageAdapter extends BaseAdapter {
 			listItemView = (ListItemView) convertView.getTag();
 		}
 
-		// 设置文字和图片
-		String fileName = listItems.get(position);
-
-		try {
-			// get input stream
-			InputStream inputStream = context.getAssets().open(
-					"images/" + dir + "/" + fileName);
-			// load image as Drawable
-			Drawable d = Drawable.createFromStream(inputStream, null);
-			// set image to ImageView
-			listItemView.image.setImageDrawable(d);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
+		File file = getItem(position);
+		String uri = "file://" + file.getAbsolutePath();
+		ImageLoader.getInstance().displayImage(uri, listItemView.image);
 
 		return convertView;
 	}
-
-	public List<String> getListItems() {
-		return listItems;
-	}
-
-	public void setListItems(List<String> listItems) {
-		this.listItems = listItems;
-	}
-
 }

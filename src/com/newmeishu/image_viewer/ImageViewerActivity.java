@@ -1,10 +1,11 @@
 package com.newmeishu.image_viewer;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,21 +20,27 @@ import android.widget.ImageView;
 import android.widget.ViewSwitcher.ViewFactory;
 
 import com.newmeishu.image_viewer.adapter.ImageAdapter;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 public class ImageViewerActivity extends Activity {
 	private Gallery gallery;
 	private ImageSwitcher imageSwitcher;
 
-	private String dir;
-	private String dirName;
+	private String path;
+
+	private File dir;
+
 	private int downX, upX;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_viewer);
-		dir = getIntent().getExtras().getString("dir");
-		dirName = getIntent().getExtras().getString("dirName");
+		Intent intent = getIntent();
+		path = intent.getStringExtra("path");
+		dir = new File(path);
 
 		gallery = (Gallery) findViewById(R.id.gallery);
 		imageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
@@ -44,19 +51,19 @@ public class ImageViewerActivity extends Activity {
 			@Override
 			public void onItemSelected(AdapterView<?> adapter, View arg1,
 					int position, long id) {
-				String file = (String) adapter.getItemAtPosition(position);
-				InputStream inputStream = null;
-				try {
-					inputStream = ImageViewerActivity.this
-							.getApplicationContext().getAssets()
-							.open("images/" + dir + "/" + file);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// load image as Drawable
-				Drawable d = Drawable.createFromStream(inputStream, null);
-				imageSwitcher.setImageDrawable(d);
+				File file = (File) adapter.getItemAtPosition(position);
+				String uri = "file://" + file.getAbsolutePath();
+				ImageSize targetSize = new ImageSize(1024, 1024);
+				ImageLoader.getInstance().loadImage(uri, targetSize,
+						new SimpleImageLoadingListener() {
+							@Override
+							public void onLoadingComplete(String imageUri,
+									View view, Bitmap loadedImage) {
+								imageSwitcher
+										.setImageDrawable(new BitmapDrawable(
+												loadedImage));
+							}
+						});
 			}
 
 			@Override

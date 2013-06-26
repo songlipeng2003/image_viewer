@@ -47,16 +47,18 @@ public class MainActivity extends Activity {
 					int position, long id) {
 				Intent intent = null;
 				File file = dirAdapter.getItem(position);
+
+				Bundle bundle = new Bundle();
 				if (file.isDirectory()) {
 					intent = new Intent(getApplicationContext(),
 							MainActivity.class);
+					bundle.putString("path", file.getAbsolutePath());
 				} else {
 					intent = new Intent(getApplicationContext(),
 							ImageViewerActivity.class);
+					bundle.putString("path", dir.getAbsolutePath());
 				}
 
-				Bundle bundle = new Bundle();
-				bundle.putString("path", file.getAbsolutePath());
 				intent.putExtras(bundle);
 				startActivity(intent);
 			}
