@@ -3,6 +3,8 @@ package com.newmeishu.image_viewer.adapter;
 import java.io.File;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.newmeishu.image_viewer.R;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class DirAdapter extends BaseAdapter {
 	private LayoutInflater listContainer;// ÊÓÍ¼ÈÝÆ÷
@@ -81,8 +82,15 @@ public class DirAdapter extends BaseAdapter {
 		if (file.isDirectory()) {
 			listItemView.image.setImageResource(R.drawable.floder);
 		} else {
-			String uri = "file://" + file.getAbsolutePath();
-			ImageLoader.getInstance().displayImage(uri, listItemView.image);
+			//
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inDither = false; // Disable Dithering mode
+			opts.inPurgeable = true;
+			opts.inSampleSize = 5;
+			// opts.inJustDecodeBounds = true;
+			Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+
+			listItemView.image.setImageBitmap(bmp);
 		}
 
 		return convertView;

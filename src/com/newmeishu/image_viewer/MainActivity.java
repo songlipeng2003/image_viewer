@@ -19,6 +19,9 @@ public class MainActivity extends Activity {
 
 	private static final String TAG = "activity";
 
+	public static float screenWidth = 480f;
+	public static float screenHeight = 800f;
+
 	private GridView dirGridView;
 
 	private DirAdapter dirAdapter;
@@ -30,6 +33,12 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		screenWidth = getWindow().getWindowManager().getDefaultDisplay()
+				.getWidth();
+		screenHeight = getWindow().getWindowManager().getDefaultDisplay()
+				.getHeight();
+
 		setContentView(R.layout.activity_main);
 		Intent intent = getIntent();
 		path = intent.getStringExtra("path");
