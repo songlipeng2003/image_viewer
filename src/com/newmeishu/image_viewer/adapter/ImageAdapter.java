@@ -68,13 +68,6 @@ public class ImageAdapter extends BaseAdapter {
 
 		image.setImageBitmap(bmp);
 
-		// bmp.recycle();
-
-		// GalleryImageView image = new GalleryImageView(context);
-		//
-		// String uri = "file://" + file.getAbsolutePath();
-		// ImageLoader.getInstance().displayImage(uri, image, options);
-
 		return image;
 	}
 }

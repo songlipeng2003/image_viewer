@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -24,6 +23,8 @@ public class ImageViewerActivity extends Activity implements OnTouchListener {
 
 	private File dir;
 
+	private int position;
+
 	float beforeLenght = 0.0f; // 两触点距离
 	float afterLenght = 0.0f; // 两触点距离
 	boolean isScale = false;
@@ -35,6 +36,7 @@ public class ImageViewerActivity extends Activity implements OnTouchListener {
 		setContentView(R.layout.activity_image_viewer);
 		Intent intent = getIntent();
 		path = intent.getStringExtra("path");
+		position = intent.getIntExtra("position", 0);
 		if (path == null) {
 			path = Environment.getExternalStorageDirectory() + "/DCIM/Camera/";
 		}
@@ -44,6 +46,7 @@ public class ImageViewerActivity extends Activity implements OnTouchListener {
 		gallery.setVerticalFadingEdgeEnabled(false);// 取消竖直渐变边框
 		gallery.setHorizontalFadingEdgeEnabled(false);// 取消水平渐变边框
 		gallery.setAdapter(new ImageAdapter(this, dir));
+		gallery.setSelection(position);
 		// gallery.setOnTouchListener(this);
 		// gallery.setOnItemSelectedListener(new GalleryChangeListener());
 	}
@@ -130,6 +133,6 @@ public class ImageViewerActivity extends Activity implements OnTouchListener {
 	private float spacing(MotionEvent event) {
 		float x = event.getX(0) - event.getX(1);
 		float y = event.getY(0) - event.getY(1);
-		return FloatMath.sqrt(x * x + y * y);
+		return (float) Math.sqrt(x * x + y * y);
 	}
 }

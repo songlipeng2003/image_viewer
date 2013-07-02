@@ -67,6 +67,8 @@ public class MainActivity extends Activity {
 							ImageViewerActivity.class);
 					bundle.putString("path", dir.getAbsolutePath());
 				}
+				
+				bundle.putInt("position", position);
 
 				intent.putExtras(bundle);
 				startActivity(intent);
