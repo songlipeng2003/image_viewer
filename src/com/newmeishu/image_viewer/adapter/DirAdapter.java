@@ -86,8 +86,21 @@ public class DirAdapter extends BaseAdapter {
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inDither = false; // Disable Dithering mode
 			opts.inPurgeable = true;
-			opts.inSampleSize = 5;
-			// opts.inJustDecodeBounds = true;
+			opts.inJustDecodeBounds = true;
+			BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+			int height = opts.outHeight;
+			int width = opts.outWidth;
+			float heightScale = height / 150;
+			float widthScale = width / 150;
+			int sampleSize = 0;
+			if (heightScale > widthScale) {
+				sampleSize = (int) Math.ceil(heightScale);
+			} else {
+				sampleSize = (int) Math.ceil(widthScale);
+			}
+
+			opts.inSampleSize = sampleSize;
+			opts.inJustDecodeBounds = false;
 			Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
 
 			listItemView.image.setImageBitmap(bmp);
